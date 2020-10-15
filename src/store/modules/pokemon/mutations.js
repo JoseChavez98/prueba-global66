@@ -7,8 +7,9 @@ export default {
     state.selectedPokemon = pokemon
   },
   [mutations.REMOVE_FAVORITE_POKEMON](state, pokemon) {
-    const favoritesCopy = { ...state.favorites }
-    delete favoritesCopy[favoritesCopy.findIndex((item) => { item.name === pokemon.name })]
-    state.favorites = { ...favoritesCopy }
+    const favoritesCopy = state.favorites;
+    var index = favoritesCopy.findIndex(element => element.name === pokemon.name)
+    favoritesCopy.splice(index, 1)
+    state.favorites = favoritesCopy
   }
 }
