@@ -1,20 +1,25 @@
 <template>
   <div class="modal">
+    <b-alert v-model="copyAlert" class="alert" variant="info" dismissible>
+      Copied to clipboard
+    </b-alert>
     <div class="modal-content">
       <div class="close" @click="closeModal">
         <span style="color: black;">&times;</span>
       </div>
-      <b-img
-        src="https://i.blogs.es/9d4485/pokemon-go/1366_2000.jpg"
-        fluid
-        rounded="top"
-        alt="Responsive image"
-        style="height: 230px"
-      ></b-img>
+      <div>
+        <img src="@/assets/background.png" class="modal-image" />
+        <img
+          v-bind:src="this.selectedPokemon.sprites.front_shiny"
+          class="pokemon-image"
+        />
+      </div>
       <b-container class="info-container">
         <div class="info-item">
           <span class="info-item__title">Name: </span>
-          <span class="info-item__data"> {{ selectedPokemon.name }}</span>
+          <span class="info-item__data">
+            {{ capitalize(selectedPokemon.name) }}</span
+          >
         </div>
         <div class="info-item">
           <span class="info-item__title">Weight: </span>
@@ -32,7 +37,15 @@
         </div>
       </b-container>
       <div class="footer">
-        <b-button pill variant="primary" class="footer-button" @click="copyData">
+        <b-button
+          pill
+          variant="primary"
+          class="footer-button"
+          @click="
+            copyData();
+            copyAlert = true;
+          "
+        >
           Share to my friends
         </b-button>
         <div
@@ -55,6 +68,9 @@
       </div>
     </div>
   </div>
+  <!-- <b-modal title="BootstrapVue"> 
+
+  </b-modal> -->
 </template>
 
 <script>
@@ -66,6 +82,11 @@ import {
 } from "../store/action-types";
 export default {
   name: "Modal",
+  data() {
+    return {
+      copyAlert: false
+    };
+  },
   computed: {
     ...mapState({
       selectedPokemon: state => state.pokemon.selectedPokemon,
@@ -102,11 +123,15 @@ export default {
       return found;
     },
     copyData() {
-      var copyText = this.selectedPokemon;
-      copyText.select();
-      copyText.setSelectionRange(0, 99999);
-      document.execCommand("copy");
-      alert("Copied the text: " + copyText.value);
+      let name = "name: " + this.selectedPokemon.name + ", ";
+      let weight = "weight: " + this.selectedPokemon.weight + ", ";
+      let height = "height: " + this.selectedPokemon.height + ", ";
+      let types = "types: " + this.getTypesString(this.selectedPokemon.types);
+      let copyText = name + weight + height + types;
+      navigator.clipboard.writeText(copyText);
+    },
+    capitalize(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
     }
   }
 };
@@ -115,12 +140,17 @@ export default {
 <style scoped>
 .info-container {
   margin-top: 10px;
-  max-width: 480px;
+  max-width: 510px;
+}
+@media only screen and (max-width: 600px) {
+  .info-container {
+    max-width: 315px;
+  }
 }
 .modal {
   display: block;
   position: fixed;
-  z-index: 1;
+  z-index: 2;
   padding-top: 100px;
   left: 0;
   top: 0;
@@ -130,15 +160,44 @@ export default {
   background-color: rgb(0, 0, 0);
   background-color: rgba(0, 0, 0, 0.4);
 }
+.modal-image {
+  height: 230px;
+  width: 100%;
+}
+.pokemon-image {
+  position: absolute;
+  top: 0.1%;
+  left: 24%;
+  height: 250px;
+  z-index: 3;
+}
+@media only screen and (max-width: 600px) {
+  .pokemon-image {
+    left: 11%;
+  }
+}
+.alert {
+  width: 540px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 16px;
+}
+@media only screen and (max-width: 600px) {
+  .alert {
+    width: 345px;
+  }
+}
 .modal-content {
   background-color: #fefefe;
   margin: auto;
   border: 1px solid #888;
   width: 540px;
-  height: 506px;
+  height: 80%;
+  max-height: 516px;
   border-radius: 5px;
   animation-name: animatetop;
   animation-duration: 0.4s;
+  overflow: auto;
 }
 @media only screen and (max-width: 600px) {
   .modal-content {
@@ -204,11 +263,11 @@ export default {
 .footer {
   display: inline-flex;
   justify-content: space-between;
-  margin: 20px 44px;
+  margin: 20px 43px;
 }
 @media only screen and (max-width: 600px) {
   .footer {
-    margin: 20px 10px;
+    margin: 20px 28px;
   }
 }
 .footer-button {

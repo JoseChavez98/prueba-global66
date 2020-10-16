@@ -1,4 +1,4 @@
 export default {
   favorites: [],
-  selectedPokemon: null,
-}
+  selectedPokemon: null
+};

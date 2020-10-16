@@ -10,7 +10,12 @@
 @import "node_modules/bootstrap-vue/src/index.scss";
 
 body {
-  background-color: #E5E5E5;
+  background-color: #f5f5f5;
+}
+
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent; /* make scrollbar transparent */
 }
 
 #app {

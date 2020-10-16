@@ -26,9 +26,9 @@ export default {
   animation: rotation 8s infinite linear;
 }
 @media only screen and (max-width: 600px) {
-    .rotate{
-        left: 35%;
-    }
+  .rotate {
+    left: 35%;
+  }
 }
 @keyframes rotation {
   from {

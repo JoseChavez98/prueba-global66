@@ -1,6 +1,5 @@
 <template>
-  <b-container style="max-width:570px">
-    <!-- <b-img src="@/assets/main-pic.png" fluid alt="Responsive image"></b-img> -->
+  <b-container class="main-container">
     <img src="@/assets/main-pic.png" class="landing-image" />
     <p class="title">Welcome to Pokédex</p>
     <p class="subtitle">
@@ -22,6 +21,10 @@ export default {
 </script>
 
 <style scoped>
+.main-container {
+  max-width: 570px;
+  margin-bottom: 40px;
+}
 .landing-image {
   margin-top: 83px;
   max-width: 350px;

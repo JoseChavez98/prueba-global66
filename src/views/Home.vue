@@ -3,30 +3,71 @@
     <b-container class="main-container">
       <div class="search-bar">
         <b-icon-search class="search-bar__icon"></b-icon-search>
-        <input class="search-bar__input" type="search" placeholder="Search" />
+        <input
+          class="search-bar__input"
+          type="search"
+          placeholder="Search"
+          v-model="search"
+        />
       </div>
-      <b-list-group class="list">
+
+      <b-list-group class="list" v-if="filteredPokemonList.length > 0">
+        <div
+          style="display: flex; justify-content: space-between; margin-left:8px; margin-right:8px"
+        >
+          <b-icon
+            v-if="prevPage"
+            icon="arrow-left"
+            animation="cylon"
+            style="color: #353535;"
+            aria-hidden="true"
+            @click="goPrevPage"
+          ></b-icon>
+          <div v-else></div>
+          <b-icon
+            v-if="nextPage"
+            icon="arrow-right"
+            animation="cylon"
+            style="color: #353535;"
+            aria-hidden="true"
+            @click="goNextPage"
+            >prev</b-icon
+          >
+          <div v-else></div>
+        </div>
         <b-list-group-item
-          v-for="(pokemon, index) in filteredPokemons"
+          v-for="(pokemon, index) in filteredPokemonList"
           :key="index"
           button
           class="list-item"
-          ><span class="list-item__text" @click="openModal(pokemon)"
-            >{{ pokemon.name }}
-          </span>
+          @click="openModal(pokemon)"
+        >
+          <div class="list-item__text">
+            {{ capitalize(pokemon.name) }}
+          </div>
           <div
             class="list-item__badge"
             v-if="isFavorite(pokemon)"
-            @click="addToFavorites(pokemon)"
+            @click.stop="addToFavorites(pokemon)"
           >
             <b-icon-star-fill class="list-item__badge-icon-active">
             </b-icon-star-fill>
           </div>
-          <div class="list-item__badge" v-else @click="addToFavorites(pokemon)">
+          <div
+            class="list-item__badge"
+            v-else
+            @click.stop="addToFavorites(pokemon)"
+          >
             <b-icon-star-fill class="list-item__badge-icon"> </b-icon-star-fill>
           </div>
         </b-list-group-item>
       </b-list-group>
+      <div class="empty-result" v-else>
+        <p class="empty-result__title">Uh-oh!</p>
+        <p class="empty-result__subtitle">
+          We couldn't find what you were looking for
+        </p>
+      </div>
     </b-container>
     <Modal v-if="openedModal" />
     <div class="footer-menu">
@@ -70,9 +111,12 @@ export default {
     return {
       pokemons: [],
       filteredPokemons: [],
+      search: "",
       loading: false,
       all: "primary",
-      favorites: "secondary"
+      favorites: "secondary",
+      prevPage: null,
+      nextPage: null
     };
   },
   components: {
@@ -83,17 +127,27 @@ export default {
     ...mapState({
       openedModal: state => state.ui.modalOpened,
       favoritePokemons: state => state.pokemon.favorites
-    })
+    }),
+    filteredPokemonList() {
+      return this.filteredPokemons.filter(pokemon => {
+        return pokemon.name.toLowerCase().includes(this.search.toLowerCase());
+      });
+    }
   },
   mounted() {
-    this.getPokemons();
+    this.getPokemons("https://pokeapi.co/api/v2/pokemon");
   },
   methods: {
-    getPokemons() {
+    getPokemons(url) {
       this.loading = true;
       axios
-        .get("https://pokeapi.co/api/v2/pokemon")
+        .get(url)
         .then(response => {
+          if (response.data.next != null) this.nextPage = response.data.next;
+          else this.nextPage = null;
+          if (response.data.previous != null)
+            this.prevPage = response.data.previous;
+          else this.prevPage = null;
           this.pokemons = response.data.results;
           this.filteredPokemons = this.pokemons;
           this.loading = false;
@@ -111,10 +165,10 @@ export default {
       }
     },
     isFavorite(pokemon) {
-        const found = this.favoritePokemons.find(
-          element => element.name === pokemon.name
-        );
-        return found;
+      const found = this.favoritePokemons.find(
+        element => element.name === pokemon.name
+      );
+      return found;
     },
     openModal(pokemon) {
       axios
@@ -133,6 +187,21 @@ export default {
       this.filteredPokemons = this.favoritePokemons;
       this.all = "secondary";
       this.favorites = "primary";
+    },
+    goNextPage() {
+      this.restartVariantsFooter();
+      this.getPokemons(this.nextPage);
+    },
+    goPrevPage() {
+      this.restartVariantsFooter();
+      this.getPokemons(this.prevPage);
+    },
+    restartVariantsFooter() {
+      this.all = "primary";
+      this.favorites = "secondary";
+    },
+    capitalize(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
     }
   }
 };
@@ -179,8 +248,25 @@ export default {
   line-height: 140%;
   color: #bfbfbf;
 }
+.empty-result {
+  margin-top: 50px;
+  font-family: Lato;
+  font-style: normal;
+}
+.empty-result__title {
+  font-weight: bold;
+  font-size: 36px;
+  line-height: 43px;
+  color: #353535;
+}
+.empty-result__subtitle {
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 150%;
+  color: #5e5e5e;
+}
 .list {
-  margin-top: 40px;
+  margin-top: 28px;
   margin-bottom: 100px;
 }
 .list-item {
@@ -198,8 +284,8 @@ export default {
 }
 .list-item__text {
   line-height: 35px;
-  width: 500px;
-  height: 45px;
+  /* width: 500px; */
+  /* height: 60px; */
   text-align: start;
 }
 @media only screen and (max-width: 600px) {
@@ -245,7 +331,7 @@ export default {
   width: 22px;
   height: 22px;
 }
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 630px) {
   .footer-menu__button {
     width: 150px;
   }

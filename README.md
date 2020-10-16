@@ -1,1 +1,8 @@
-# prueba-global66
+# Prueba Frontend Global66
+
+## Project setup
+```
+yarn install
+yarn serve
+```
+
