@@ -27,5 +27,5 @@ Para este caso en particular  (pokedex), suponiendo que los datos son muchos, yo
 Y para mostrarlos, se puede utilizar la paginación y enviarle offsets pequeños (tal vez de 20 pokemones) para mostrarlos al usuario por cada pagina.
 
 ## Extras
-La aplicación esta desplegada para que puedan probarla en el siguiente link [link](https://pokedex-global66.herokuapp.com)
+La aplicación esta desplegada para que puedan probarla en el siguiente [link](https://pokedex-global66.herokuapp.com)
 
